@@ -50,8 +50,18 @@ app.post('/login', (req, res) => {
                     console.error('Bcrypt error:', error);
                     res.status(500).json({ error: 'Internal server error' });
                 } else if (match) {
+                    const username = results[0].username;
                     const token = jwt.sign({ username: username }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                    res.json({ token: token });
+                    const queryId = 'SELECT id FROM User WHERE username = ?';
+                        connection.query(queryId, [username], (error, results) => {
+                            if (error) {
+                                console.error('Database error:', error);
+                                res.status(500).json({ error: 'Internal server error' });
+                            } else {
+                                const id = results[0].id;
+                                res.json({ token: token , id: id});
+                            }
+                        });
                 } else {
                     res.status(400).json({ error: 'Invalid username or password' });
                 }
@@ -89,7 +99,17 @@ app.post('/register', (req, res) => {
                             res.status(500).json({ error: 'Internal server error' });
                         } else {
                             const token = jwt.sign({ username: username }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                            res.json({ token: token });
+                            // get id
+                            const queryId = 'SELECT id FROM User WHERE username = ?';
+                            connection.query(queryId, [username], (error, results) => {
+                                if (error) {
+                                    console.error('Database error:', error);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                } else {
+                                    const id = results[0].id;
+                                    res.json({ token: token , id: id});
+                                }
+                            });
                         }
                     });
                 }
@@ -106,6 +126,22 @@ app.post('/verify', (req, res) => {
             res.status(403).json({ error: 'Invalid token' });
         } else {
             res.json({ status: 'success' });
+        }
+    });
+});
+
+// get username
+
+app.get('/user/:id', (req, res) => {
+    const userId = req.params.id;
+    connection.query('SELECT username FROM User WHERE id = ?', [userId], (error, results) => {
+        if (error) {
+            console.error(error); // Log the actual error message
+            res.status(500).json({ error: 'An error occurred' });
+        } else if (results.length > 0) {
+            res.json({ username: results[0].username });
+        } else {
+            res.status(404).json({ error: 'User not found' });
         }
     });
 });

@@ -43,6 +43,7 @@
                 alert(data.error);
             } else {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('id', data.id);
                 window.location.href = './dashboard.html';
             }
         });

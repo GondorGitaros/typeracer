@@ -36,16 +36,12 @@
             });
         };
 
-        // Get the user's username with the token
-        fetch('http://localhost:3000/username', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
+        // Get the user's username with the id
+        const id = localStorage.getItem('id');
+        fetch('http://localhost:3000/user/' + id)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('username').innerText = data.username;
+            document.getElementById('username').textContent = data.username;
         });
     </script>
 </body>
