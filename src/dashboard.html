@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./output.css" rel="stylesheet">
+    <title>Dashboard</title>
+    <style>body {display: none;}</style>
+</head>
+<body class="bg-gray-800">
+    <h1 class="text-white">Welcome <h1 id="username"></h1> </h1>
+    <script>
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = './index.html';
+                return;
+            }
+
+            // Verify the token
+            fetch('http://localhost:3000/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    window.location.href = './index.html';
+                } else {
+                    document.body.style.display = 'block';
+                }
+            });
+        };
+
+        // Get the user's username with the token
+        fetch('http://localhost:3000/username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('username').innerText = data.username;
+        });
+    </script>
+</body>
+</html>

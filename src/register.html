@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./output.css" rel="stylesheet">
+    <title>Registration</title>
+</head>
+<body class="bg-gray-800 flex items-center justify-center h-screen">
+    <div class="bg-gray-900 text-white p-10 rounded shadow-2xl w-100">
+        <h1 class="text-5xl font-bold mb-5 text-center">Type Racer</h1>
+        <h2 class="text-3xl font-bold mb-10 text-center">Register</h2>
+        <form>
+            <div class="space-y-5">
+                <input id="Username" type="text" placeholder="Username" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
+                <input id="Email" type="text" placeholder="Email" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
+                <input id="Password" type="password" placeholder="Password" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
+                <input id="PasswordAgain" type="password" placeholder="Password Again" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
+            </div>
+            <div class="flex items-center justify-between mt-6">
+                <button type="submit" class="bg-blue-500 py-2 px-6 text-white rounded hover:bg-blue-600">Register</button>
+                <div class="text-right">
+                    <a href="./index.html" class="text-blue-500 hover:text-blue-600">Alerady have an account?</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('Username').value;
+            const email = document.getElementById('Email').value;
+            const password = document.getElementById('Password').value;
+            const passwordAgain = document.getElementById('PasswordAgain').value;
+            if (password !== passwordAgain) {
+                alert('Passwords do not match');
+                return;
+            }
+            const response = await fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password
+                })
+            });
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                localStorage.setItem('token', data.token);
+                window.location.href = './dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>
