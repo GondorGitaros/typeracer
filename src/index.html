@@ -4,48 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./output.css" rel="stylesheet">
-    <title>Type Racer</title>
+    <title>Dashboard</title>
+    <style>body {display: none;}</style>
 </head>
-<body class="bg-gray-800 flex items-center justify-center h-screen">
-    <div class="bg-gray-900 text-white p-10 rounded shadow-2xl w-100">
-        <h1 class="text-5xl font-bold mb-5 text-center">Type Racer</h1>
-        <h2 class="text-3xl font-bold mb-10 text-center">Login</h2>
-        <form>
-            <div class="space-y-5">
-                <input id="UsernameOrEmail" type="text" placeholder="Username or Email" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
-                <input id="Password" type="password" placeholder="Password" class="w-full p-2 bg-gray-800 text-white border border-gray-700 rounded mt-1" required>
-            </div>
-            <div class="flex items-center justify-between mt-6">
-                <button type="submit" class="bg-blue-500 py-2 px-6 text-white rounded hover:bg-blue-600">Login</button>
-                <div class="text-right">
-                    <a href="./register.html" class="text-blue-500 hover:text-blue-600">Don't have an account?</a>
-                </div>
-            </div>
-        </form>
-    </div>
+<body class="bg-gray-800">
+    <h1 class="text-white">Welcome <h1 id="username" class="text-white"></h1> </h1>
+    <button id="LogOut">Log out</button>
     <script>
-        document.querySelector('form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const usernameOrEmail = document.getElementById('UsernameOrEmail').value;
-            const password = document.getElementById('Password').value;
-            const response = await fetch('http://localhost:3000/login', {
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = './login.html';
+                return;
+            }
+
+            // Verify the token
+            fetch('http://localhost:3000/verify', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    usernameOrEmail,
-                    password
-                })
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    window.location.href = './login.html';
+                } else {
+                    document.body.style.display = 'block';
+                }
             });
-            const data = await response.json();
-            if (data.error) {
-                alert(data.error);
-            } else {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('id', data.id);
-                window.location.href = './dashboard.html';
-            }
+        };
+
+        // Get the user's username with the id
+        const id = localStorage.getItem('id');
+        fetch('http://localhost:3000/user/' + id)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('username').textContent = data.username;
+        });
+
+        document.getElementById('LogOut').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('id');
+            window.location.href = './login.html';
         });
     </script>
 </body>
