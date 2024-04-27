@@ -51,7 +51,7 @@ app.post('/login', (req, res) => {
                     res.status(500).json({ error: 'Internal server error' });
                 } else if (match) {
                     const username = results[0].username;
-                    const token = jwt.sign({ username: username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                    const token = jwt.sign({ username: username }, process.env.JWT_SECRET);
                     const queryId = 'SELECT id FROM User WHERE username = ?';
                         connection.query(queryId, [username], (error, results) => {
                             if (error) {
@@ -98,7 +98,7 @@ app.post('/register', (req, res) => {
                             console.error('Database error:', error);
                             res.status(500).json({ error: 'Internal server error' });
                         } else {
-                            const token = jwt.sign({ username: username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                            const token = jwt.sign({ username: username }, process.env.JWT_SECRET);
                             // get id
                             const queryId = 'SELECT id FROM User WHERE username = ?';
                             connection.query(queryId, [username], (error, results) => {
@@ -144,7 +144,7 @@ app.get('/user/:id', (req, res) => {
             res.status(404).json({ error: 'User not found' });
         }
     });
-});
+})
 
 // start server
 app.listen(port, () => {
